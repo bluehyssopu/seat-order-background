@@ -13,7 +13,7 @@ const joi = require('joi')
 
 // 用户名的验证规则
 const username = joi.string().alphanum().min(1).max(10).required()
-// 定义 id, nickname, emial 的验证规则
+// 定义 id, nickname, email 的验证规则
 const id = joi.number().integer().min(1).required()
 const nickname = joi.string().required()
 const email = joi.string().email().required()
@@ -55,4 +55,3 @@ exports.update_password_schema = {
       newPwd: joi.not(joi.ref('oldPwd')).concat(password),
     },
 }
-  
