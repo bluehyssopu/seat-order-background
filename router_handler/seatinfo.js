@@ -27,3 +27,22 @@ exports.getSeatInfoList = (req, res) => {
         })
     })
 }
+
+exports.getSeatZoneList = (req, res) => {
+    const sql = `select seat_area, seat_number, seat_type, status from seat where seat_area=?`
+
+    db.query(sql, req.body.seat_area, (err, results) => {
+        // 1. 执行 SQL 语句失败
+        if (err) return res.cc(err)
+        
+        // 2. 执行 SQL 语句成功，但是查询到的数据条数不等于 1
+        if (results.length == 0) return res.cc('获取该区域座位信息失败！')
+        
+        // 3. 将用户信息响应给客户端
+        res.send({
+            status: 0,
+            message: '获取该区域座位信息成功！',
+            data: results,
+        })
+    })
+}
