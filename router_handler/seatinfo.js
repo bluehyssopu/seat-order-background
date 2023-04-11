@@ -48,6 +48,37 @@ exports.getSeatZoneList = (req, res) => {
     })
 }
 
+exports.getSeatFreeTime = (req, res) => {
+    const date = new Date().toLocaleDateString()
+    const nowTime = new Date().toLocaleTimeString()
+    const seat_id = req.body.seat_id
+    const sql = "SELECT * FROM reservation WHERE seat_id = ? AND date = ?"
+    db.query(sql, [seat_id, date], (err, results) => {
+        if (err) {
+            return res.cc("查询出错")
+        } else if (results.length == 0) {
+            res.send({
+                status: 0,
+                message: "今日该座位无人预约",
+                data: "今日该座位无人预约"
+            })
+        } else {
+            // console.log(results);
+            const free_slots = []
+            let strTime = "当前座位已预约时间段为："
+            for (var i = 0; i < results.length; i++) {
+                free_slots.push({start: results[i].start_time, end: results[i].end_time});
+                strTime = strTime + results[i].start_time + "~" + results[i].end_time + "；"
+            }
+            res.send({
+                status: 0,
+                message: "查询座位空闲时间成功，返回座位空闲时间",
+                data: strTime
+            })
+        }
+    }) 
+}
+
 exports.reserveSeat = (req, res) => {
     // console.log(req.body);
     const user_id = req.body.user_id
@@ -60,8 +91,8 @@ exports.reserveSeat = (req, res) => {
     const endDateTime = endTime + ':00';
   
     // 查询数据库，判断该时间段内是否已经有预约
-    const query = 'SELECT * FROM reservation WHERE seat_id = ? AND start_time < ? AND end_time > ?';
-    db.query(query, [seat_id, endDateTime, startDateTime], (error, results, fields) => {
+    const query = 'SELECT * FROM reservation WHERE seat_id = ? AND date = ? AND start_time < ? AND end_time > ?';
+    db.query(query, [seat_id, date, endDateTime, startDateTime], (error, results, fields) => {
         if (error) {
             console.log(error);
             return res.cc("查询出错")
