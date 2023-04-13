@@ -1,6 +1,37 @@
 // 导入数据库操作模块
 const db = require('../db/index')
 
+function updateSeatStatus(id) {
+    const seat_id = id
+    console.log(seat_id);
+    const date = new Date().toLocaleDateString()
+    const nowTime = new Date().getTime() // yy:mm:dd hh:mm:ss 利用getTime()比较时间戳
+    const sql = 'SELECT * FROM reservation WHERE seat_id = ? AND date = ?';
+    db.query(sql, [seat_id, date], (err, results) => {
+        if (err) {
+            return err
+        } else {
+            for (var i = 0; i < results.length; i++) {
+                const startTime = new Date(date + " " + results[i].start_time).getTime()
+                const endTime = new Date(date + " " + results[i].end_time).getTime()
+                console.log(startTime + " " + nowTime + " " + endTime);
+                if (nowTime >= startTime && nowTime < endTime) {
+                    // 座位表中 座位号为 seat_number 不是 seat_id
+                    const statusSql = "update seat set status = '使用中' WHERE seat_number = ?"
+                    db.query(statusSql, seat_id, (results) => {
+                        if (err) {
+                            return err
+                        } else {
+                            return "座位状态更新成功"
+                        }
+                    })
+                }
+            }
+        }
+
+    })
+}
+
 exports.getSeatInfoList = (req, res) => {
     const sql = `SELECT
         SUM(CASE WHEN status = '空闲' AND seat_area = 'A' THEN 1 ELSE 0 END) AS A_free,
@@ -94,18 +125,17 @@ exports.reserveSeat = (req, res) => {
     const query = 'SELECT * FROM reservation WHERE seat_id = ? AND date = ? AND start_time < ? AND end_time > ?';
     db.query(query, [seat_id, date, endDateTime, startDateTime], (error, results, fields) => {
         if (error) {
-            console.log(error);
             return res.cc("查询出错")
         } else if (results.length > 0) {
-            console.log(results);
-            return res.cc("该段时间内已有预约。This time slot has been booked")
+            updateSeatStatus(seat_id)
+            return res.cc("该段时间内已有预约。")
         } else { // 时间段内没有预约，创建新的预约记录
             const insertQuery = 'INSERT INTO reservation (user_id, seat_id, date, start_time, end_time) VALUES   (?, ?, ?, ?, ?)  '
             db.query(insertQuery, [user_id, seat_id, date, startDateTime, endDateTime], (error, results, fields) => {
                 if (error) {
-                    console.log(error);
                     return res.cc("创建预约记录出错")
                 } else { 
+                    updateSeatStatus(seat_id)
                     return res.cc("创建预约记录成功，返回成功信息")
                 }
             })
