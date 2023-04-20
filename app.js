@@ -55,6 +55,23 @@ app.use('/api', seatInfoRouter)
 // 注意：以 /my 开头的接口，都是有权限的接口，需要进行 Token 身份认证
 app.use('/my', userInfoRouter)
 
+const CronJob = require('cron').CronJob;
+const updateStatus = require('./utils/autoUpdate');
+console.log(updateStatus);
+
+const getSeatListId = require('./utils/getSeatListId')
+const seatListId = getSeatListId.getSeatListId.seatListId
+
+console.log(seatListId);
+// '* * 8-22 * * *'
+const job = new CronJob('0 */20 8-22 * * *', function() {
+    for (var i = 0; i < seatListId.length; i++) {
+        updateStatus.updateStatus(seatListId[i]);
+    }
+});
+
+job.start();
+
 // 调用 app.listen 方法，指定端口号并启动web服务器
 app.listen(4000, function () {
     console.log('api server running at http://127.0.0.1:4000')
