@@ -172,3 +172,31 @@ exports.cancelSeat = (req, res) => {
         } 
     })
 }
+
+exports.reserveHistory = (req, res) => {
+    const user_id = req.body.user_id
+    const query = "select id, seat_id, date, start_time, end_time, status from reservation where user_id=?"
+    db.query(query, user_id, (error, results) => {
+        if (error) {
+            res.cc("预约记录查询出错")
+        } else {
+            const formattedData = results.map(item => {
+                const date = new Date(item.date).toLocaleDateString();
+                return {
+                    id: item.id,
+                    seat_id: item.seat_id,
+                    date: date,
+                    start_time: item.start_time,
+                    end_time: item.end_time,
+                    status: item.status
+                };
+            });
+            // console.log(results);
+            res.send({
+                status: 0,
+                message: "用户：" + user_id + '的预约记录查询成功',
+                data: formattedData,
+            })
+        }
+    })
+}

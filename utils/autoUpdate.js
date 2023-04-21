@@ -45,5 +45,11 @@ module.exports = {
                 return "座位状态为忙碌"
             }
         })
-    }
+    },
+
+    // TODO 更新预约记录表
+    // 筛选当天记录 比较 endTime 和 nowTime 修改预约表状态 为已通过或已过期 
+    // select id, seat_id, end_time from reservation where date=? and status='已通过' ( and username = ? )
+
+    // TODO 更新用户预约记录
 }
