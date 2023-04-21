@@ -56,17 +56,17 @@ app.use('/api', seatInfoRouter)
 app.use('/my', userInfoRouter)
 
 const CronJob = require('cron').CronJob;
-const updateStatus = require('./utils/autoUpdate');
-console.log(updateStatus);
+const autoUpdate = require('./utils/autoUpdate');
+console.log(autoUpdate);
 
 const getSeatListId = require('./utils/getSeatListId')
 const seatListId = getSeatListId.getSeatListId.seatListId
 
 console.log(seatListId);
-// '* * 8-22 * * *'
+// '* * 8-22 * * *'  '0 */20 8-22 * * *'
 const job = new CronJob('0 */20 8-22 * * *', function() {
     for (var i = 0; i < seatListId.length; i++) {
-        updateStatus.updateStatus(seatListId[i]);
+        autoUpdate.updateSeatStatus(seatListId[i]);
     }
 });
 

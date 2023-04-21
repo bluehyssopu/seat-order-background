@@ -1,7 +1,7 @@
 const db = require('../db/index')
 
 module.exports = {
-    updateStatus: function (id) {
+    updateSeatStatus: function (id) {
         const seat_id = id
         console.log(seat_id);
         const date = new Date().toLocaleDateString()
