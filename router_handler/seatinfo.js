@@ -161,8 +161,8 @@ exports.reserveSeat = (req, res) => {
 exports.cancelSeat = (req, res) => {
     const id = req.reserveId // 预约记录的 ID
     // 删除数据库中相应的预约记录
-    const query = 'DELETE FROM reservation WHERE id = ?'
-    db.query(query, [id], (error, results, fields) => { 
+    const query = "update reservation set status = '已取消' WHERE id = ?"
+    db.query(query, id, (error, results, fields) => { 
         if (error) { // 删除出错，返回错误信息 
             res.status(500).send('Server error'); 
         } else if (results.affectedRows === 0) { // 没有找到相应的预约记录，返回错误信息 
