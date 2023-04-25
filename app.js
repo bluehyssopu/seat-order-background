@@ -64,7 +64,7 @@ const seatListId = getSeatListId.getSeatListId.seatListId
 
 console.log(seatListId);
 // '* * 8-22 * * *'  '0 */20 8-22 * * *'
-const job = new CronJob('0 */20 8-22 * * *', function() {
+const job = new CronJob('0 */2 8-22 * * *', function() {
     for (var i = 0; i < seatListId.length; i++) {
         autoUpdate.updateSeatStatus(seatListId[i]);
     }
@@ -72,7 +72,7 @@ const job = new CronJob('0 */20 8-22 * * *', function() {
 
 job.start();
 
-const job2 = new CronJob('0 */20 8-22 * * *', function() {
+const job2 = new CronJob('0 */2 8-22 * * *', function() {
     autoUpdate.updateReservsationStatus()
 })
 

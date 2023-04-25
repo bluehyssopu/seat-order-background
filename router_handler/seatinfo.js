@@ -135,23 +135,33 @@ exports.reserveSeat = (req, res) => {
     // 将开始时间和结束时间转换为 MySQL 格式的日期时间字符串
     const startDateTime = startTime + ':00';
     const endDateTime = endTime + ':00';
-  
-    // 查询数据库，判断该时间段内是否已经有预约
-    const query = 'SELECT * FROM reservation WHERE seat_id = ? AND date = ? AND start_time < ? AND end_time > ?';
-    db.query(query, [seat_id, date, endDateTime, startDateTime], (error, results, fields) => {
-        if (error) {
-            return res.cc("查询出错")
-        } else if (results.length > 0) {
-            updateSeatStatus(seat_id)
-            return res.cc("该段时间内已有预约。")
-        } else { // 时间段内没有预约，创建新的预约记录
-            const insertQuery = 'INSERT INTO reservation (user_id, seat_id, date, start_time, end_time) VALUES   (?, ?, ?, ?, ?)  '
-            db.query(insertQuery, [user_id, seat_id, date, startDateTime, endDateTime], (error, results, fields) => {
+
+    // 查询数据库 当天是否已有预约 且未履行
+    const waitSql = "SELECT * FROM reservation WHERE user_id = ? AND date = ? AND status='已通过'"
+    db.query(waitSql, [user_id, date], (err, results) => {
+        if (err) {
+            console.log(err);
+        } else if (results.length >= 1) {
+            return res.cc("您今天已有预约")
+        } else {
+            // 判断预约时间与他人是否冲突
+            const query = "SELECT * FROM reservation WHERE seat_id = ? AND status = '已通过' AND date = ? AND start_time < ? AND end_time > ?";
+            db.query(query, [seat_id, date, endDateTime, startDateTime], (error, results, fields) => {
                 if (error) {
-                    return res.cc("创建预约记录出错")
-                } else { 
+                    return res.cc("查询出错")
+                } else if (results.length > 0) {
                     updateSeatStatus(seat_id)
-                    return res.cc("创建预约记录成功，返回成功信息")
+                    return res.cc("该段时间内已有其他人预约。")
+                } else { // 时间段内没有预约，创建新的预约记录
+                    const insertQuery = 'INSERT INTO reservation (user_id, seat_id, date, start_time, end_time) VALUES          (?, ?, ?, ?, ?)  '
+                    db.query(insertQuery, [user_id, seat_id, date, startDateTime, endDateTime], (error, results, fields) => {
+                        if (error) {
+                            return res.cc("创建预约记录出错")
+                        } else { 
+                            updateSeatStatus(seat_id)
+                            return res.cc("创建预约记录成功，返回成功信息")
+                        }
+                    })
                 }
             })
         }
