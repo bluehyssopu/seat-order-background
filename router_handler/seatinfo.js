@@ -3,7 +3,6 @@ const db = require('../db/index')
 
 function updateSeatStatus(id) {
     const seat_id = id
-    console.log(seat_id);
     const date = new Date().toLocaleDateString()
     const nowTime = new Date().getTime() // yy:mm:dd hh:mm:ss 利用getTime()比较时间戳
     const sql = 'SELECT * FROM reservation WHERE seat_id = ? AND date = ?';
@@ -24,7 +23,6 @@ function updateSeatStatus(id) {
                         if (err) {
                             return err
                         } else {
-                            console.log("座位状态更新成功");
                             return "座位状态更新成功"
                         }
                     })
@@ -125,6 +123,22 @@ exports.getSeatFreeTime = (req, res) => {
     }) 
 }
 
+exports.getSeatMine = (req, res) => {
+    const sql = "SELECT * FROM reservation WHERE user_id = ? AND status = '已通过'"
+    const user_id = req.body.user_id
+    db.query(sql, user_id, (err, results) => {
+        if (err) {
+            return err
+        } else {
+            res.send({
+                status: 0,
+                message: "查询座位空闲时间成功，返回座位空闲时间",
+                data: results
+            })
+        }
+    })
+}
+
 exports.reserveSeat = (req, res) => {
     // console.log(req.body);
     const user_id = req.body.user_id
@@ -141,7 +155,7 @@ exports.reserveSeat = (req, res) => {
     db.query(waitSql, [user_id, date], (err, results) => {
         if (err) {
             console.log(err);
-        } else if (results.length >= 1) {
+        } else if (results.length > 1) {
             return res.cc("您今天已有预约")
         } else {
             // 判断预约时间与他人是否冲突

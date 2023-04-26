@@ -3,7 +3,7 @@ const db = require('../db/index')
 module.exports = {
     updateSeatStatus: function (id) {
         const seat_id = id
-        console.log(seat_id);
+        // console.log(seat_id);
         const date = new Date().toLocaleDateString()
         const nowTime = new Date().getTime() // yy:mm:dd hh:mm:ss 利用getTime()比较时间戳
         const sql = 'SELECT * FROM reservation WHERE seat_id = ? AND date = ?';
@@ -24,7 +24,6 @@ module.exports = {
                             if (err) {
                                 return err
                             } else {
-                                console.log("座位状态更新成功");
                                 return "座位状态更新成功"
                             }
                         })
@@ -37,7 +36,6 @@ module.exports = {
                     if (err2) {
                         return err2
                     } else {
-                        console.log("座位状态更新为空闲");
                         return "座位状态更新为空闲"
                     }
                 })
