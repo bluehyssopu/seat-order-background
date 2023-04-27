@@ -5,11 +5,19 @@ function updateSeatStatus(id) {
     const seat_id = id
     const date = new Date().toLocaleDateString()
     const nowTime = new Date().getTime() // yy:mm:dd hh:mm:ss 利用getTime()比较时间戳
-    const sql = 'SELECT * FROM reservation WHERE seat_id = ? AND date = ?';
-    let boolStatus = false
+    const sql = "SELECT * FROM reservation WHERE seat_id = ? AND date = ? AND status='已通过'";
     db.query(sql, [seat_id, date], (err, results) => {
         if (err) {
             return err
+        } else if (results.length == 0) {
+            const statusFreeSql = "update seat set status = '空闲' WHERE seat_number = ?"
+            db.query(statusFreeSql, seat_id, (err2, results) => {
+                if (err2) {
+                    return err2
+                } else {
+                    return "座位状态更新为空闲"
+                }
+            })
         } else {
             for (var i = 0; i < results.length; i++) {
                 const startTime = new Date(date + " " + results[i].start_time).getTime()
@@ -17,7 +25,6 @@ function updateSeatStatus(id) {
                 console.log(startTime + " " + nowTime + " " + endTime);
                 if (nowTime >= startTime && nowTime < endTime) {
                     // 座位表中 座位号为 seat_number 不是 seat_id
-                    boolStatus = true
                     const statusSql = "update seat set status = '使用中' WHERE seat_number = ?"
                     db.query(statusSql, seat_id, (results) => {
                         if (err) {
@@ -28,19 +35,6 @@ function updateSeatStatus(id) {
                     })
                 }
             }
-        }
-        if (boolStatus === false) {
-            const statusFreeSql = "update seat set status = '空闲' WHERE seat_number = ?"
-            db.query(statusFreeSql, seat_id, (err2, results) => {
-                if (err2) {
-                    return err2
-                } else {
-                    console.log("座位状态更新为空闲");
-                    return "座位状态更新为空闲"
-                }
-            })
-        } else {
-            return
         }
     })
 }
@@ -96,7 +90,7 @@ exports.getSeatFreeTime = (req, res) => {
     const date = new Date().toLocaleDateString()
     const nowTime = new Date().toLocaleTimeString()
     const seat_id = req.body.seat_id
-    const sql = "SELECT * FROM reservation WHERE seat_id = ? AND date = ?"
+    const sql = "SELECT * FROM reservation WHERE seat_id = ? AND date = ? AND status='已通过'"
     db.query(sql, [seat_id, date], (err, results) => {
         if (err) {
             return res.cc("查询出错")
@@ -183,7 +177,10 @@ exports.reserveSeat = (req, res) => {
 }
 
 exports.cancelSeat = (req, res) => {
-    const id = req.reserveId // 预约记录的 ID
+    const id = req.body.reserveId // 预约记录的 ID
+    const username = req.body.user_id
+    const reduceValue = req.body.reduceValue
+    // console.log(req.body);
     // 删除数据库中相应的预约记录
     const query = "update reservation set status = '已取消' WHERE id = ?"
     db.query(query, id, (error, results, fields) => { 
@@ -194,6 +191,22 @@ exports.cancelSeat = (req, res) => {
         } else { // 删除成功，返回成功信息 
             res.status(200).send('Cancelled successfully')
         } 
+    })
+    const creditSql = "select credit_value from credit WHERE username = ?"
+    db.query(creditSql, username, (error, results) => {
+        if (error) {
+            console.log(error);
+        } else {
+            const credit = results[0].credit_value - reduceValue
+            const updateCreditSql = "update credit set credit_value=? WHERE username=?"
+            db.query(updateCreditSql, [credit, username], (err, results) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("用户：" + username + "的更新诚信值成功");
+                }
+            })
+        }
     })
 }
 
