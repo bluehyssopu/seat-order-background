@@ -78,6 +78,17 @@ const job2 = new CronJob('0 */2 8-22 * * *', function() {
 
 job2.start()
 
+const job3 = new CronJob('48 21 * * *', function() {
+    autoUpdate.updateCredit()
+})
+
+job3.start()
+
+const job4 = new CronJob('55 21 * * *', function() {
+    autoUpdate.updateCheckout()
+})
+
+job4.start()
 // 调用 app.listen 方法，指定端口号并启动web服务器
 app.listen(4000, function () {
     console.log('api server running at http://127.0.0.1:4000')

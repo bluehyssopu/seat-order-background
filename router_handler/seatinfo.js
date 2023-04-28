@@ -237,3 +237,15 @@ exports.reserveHistory = (req, res) => {
         }
     })
 }
+
+exports.checkout = (req, res) => {
+    const id = req.body.reserveId
+    const query = "update reservation set checkout = '已签到' WHERE id = ?"
+    db.query(query, id, (err, results) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.cc("签到成功")
+        }
+    })
+}

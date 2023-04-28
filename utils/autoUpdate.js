@@ -74,8 +74,50 @@ module.exports = {
                 console.log("编号为" + id + "的预约记录已更新");
             }
         })
-    }
+    },
 
-    
-    // TODO 更新用户预约记录
+    // 更新因签到信息改变的诚信值
+    updateCredit: function() {
+        const date = new Date().toLocaleDateString()
+        const sql = "SELECT * from reservation WHERE date=? AND status='已过期' AND checkout='待签到'"
+        db.query(sql, date, (err, results) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(results);
+                const reduceValue = 2
+                for (var i = 0; i < results.length; i++) {
+                    const username = results[i].user_id
+                    const creditSql = "select credit_value from credit WHERE username = ?"
+                    db.query(creditSql, username, (error, results2) => {
+                        if (error) {
+                            console.log(error);
+                        } else {
+                            const credit = results2[0].credit_value - reduceValue
+                            const updateCreditSql = "update credit set credit_value=? WHERE username=?"
+                            db.query(updateCreditSql, [credit, username], (err) => {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    console.log("用户：" + username + "的更新诚信值成功");
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+        })
+    },
+
+    updateCheckout: function() {
+        const date = new Date().toLocaleDateString()
+        const sql = "update reservation set checkout = '未签到' WHERE date=? AND status='已过期' AND checkout='待签到'"
+        db.query(sql, date, (err) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log("更新签到状态成功");
+            }
+        })
+    }
 }
