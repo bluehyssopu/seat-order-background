@@ -3,7 +3,7 @@ const db = require('../db/index')
 
 function updateSeatStatus(id) {
     const seat_id = id
-    const date = new Date().toLocaleDateString()
+    const date = new Date().toLocaleDateString('zh')
     const nowTime = new Date().getTime() // yy:mm:dd hh:mm:ss 利用getTime()比较时间戳
     const sql = "SELECT * FROM reservation WHERE seat_id = ? AND date = ? AND status='已通过'";
     db.query(sql, [seat_id, date], (err, results) => {
@@ -87,7 +87,7 @@ exports.getSeatZoneList = (req, res) => {
 }
 
 exports.getSeatFreeTime = (req, res) => {
-    const date = new Date().toLocaleDateString()
+    const date = new Date().toLocaleDateString('zh')
     const nowTime = new Date().toLocaleTimeString()
     const seat_id = req.body.seat_id
     const sql = "SELECT * FROM reservation WHERE seat_id = ? AND date = ? AND status='已通过'"
@@ -139,7 +139,7 @@ exports.reserveSeat = (req, res) => {
     const seat_id = req.body.seat_id
     const startTime = req.body.startTime; // 前端发送的开始时间，格式为 HH:MM
     const endTime = req.body.endTime; // 前端发送的结束时间，格式为 HH:MM
-    const date = new Date().toLocaleDateString()
+    const date = new Date().toLocaleDateString('zh')
     // 将开始时间和结束时间转换为 MySQL 格式的日期时间字符串
     const startDateTime = startTime + ':00';
     const endDateTime = endTime + ':00';
@@ -218,7 +218,7 @@ exports.reserveHistory = (req, res) => {
             res.cc("预约记录查询出错")
         } else {
             const formattedData = results.map(item => {
-                const date = new Date(item.date).toLocaleDateString();
+                const date = new Date(item.date).toLocaleDateString('zh');
                 return {
                     id: item.id,
                     seat_id: item.seat_id,

@@ -9,5 +9,6 @@ router.post('/seat/reserve', seatinfo_handler.reserveSeat)
 router.post('/seat/reservations', seatinfo_handler.reserveHistory)
 router.post('/seat/mine', seatinfo_handler.getSeatMine)
 router.post('/seat/cancel', seatinfo_handler.cancelSeat)
+router.post('/seat/checkout', seatinfo_handler.checkout)
 
 module.exports = router

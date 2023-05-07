@@ -4,7 +4,7 @@ module.exports = {
     updateSeatStatus: function (id) {
         const seat_id = id
         // console.log(seat_id);
-        const date = new Date().toLocaleDateString()
+        const date = new Date().toLocaleDateString('zh')
         const nowTime = new Date().getTime() // yy:mm:dd hh:mm:ss 利用getTime()比较时间戳
         const sql = "SELECT * FROM reservation WHERE seat_id = ? AND date = ? AND status='已通过'";
         db.query(sql, [seat_id, date], (err, results) => {
@@ -51,7 +51,7 @@ module.exports = {
                 return err
             } else {
                 for (var i = 0; i < results.length; i++) {
-                    const reserveDay = new Date(results[i].date).toLocaleDateString()
+                    const reserveDay = new Date(results[i].date).toLocaleDateString('zh')
                     const end_time = results[i].end_time
                     const reserveTime = new Date(reserveDay + " " + end_time).getTime()
                     const nowTime = new Date().getTime()
@@ -78,7 +78,7 @@ module.exports = {
 
     // 更新因签到信息改变的诚信值
     updateCredit: function() {
-        const date = new Date().toLocaleDateString()
+        const date = new Date().toLocaleDateString('zh')
         const sql = "SELECT * from reservation WHERE date=? AND status='已过期' AND checkout='待签到'"
         db.query(sql, date, (err, results) => {
             if (err) {
@@ -110,7 +110,7 @@ module.exports = {
     },
 
     updateCheckout: function() {
-        const date = new Date().toLocaleDateString()
+        const date = new Date().toLocaleDateString('zh')
         const sql = "update reservation set checkout = '未签到' WHERE date=? AND status='已过期' AND checkout='待签到'"
         db.query(sql, date, (err) => {
             if (err) {
