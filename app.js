@@ -49,9 +49,12 @@ const userRouter = require('./router/user')
 const userInfoRouter = require('./router/userinfo')
 // 导入座位信息路由模块
 const seatInfoRouter = require('./router/seatinfo')
+// 导入管理员后台管理路由模块
+const adminRouter = require('./router/admin')
 
 app.use('/api', userRouter)
 app.use('/api', seatInfoRouter)
+app.use('/api', adminRouter)
 // 注意：以 /my 开头的接口，都是有权限的接口，需要进行 Token 身份认证
 app.use('/my', userInfoRouter)
 
